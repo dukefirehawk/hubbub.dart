@@ -1,0 +1,6 @@
+import 'dart:html';
+
+void main() {
+    // Should show 40, instead of 10.
+    window.alert((2 * 5).toString());
+}

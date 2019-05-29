@@ -55,7 +55,7 @@ Future<void> hubbubRaw(SendPort sendPort,
     server.registerMethod(hubbubMethod, (json_rpc_2.Parameters p) async {
       var source = RemoteHubbubSource.fromJsonRpc2(p);
       var result = await transformer(source);
-      return RemoteHubbubResult(result);
+      return RemoteHubbubResult(result).toJson();
     });
     await server.listen();
   }

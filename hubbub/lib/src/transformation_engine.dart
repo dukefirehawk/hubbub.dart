@@ -78,6 +78,12 @@ class TransformationEngine {
       // If there is no scheme, this is the current package.
       if (entry.key == rootPackage) {
         var rootDir = Directory(await resolver.packagePath(entry.key));
+        var libPluginFile =
+            File(p.join(rootDir.path, 'lib', 'hubbub_plugin.dart'));
+        if (await libPluginFile.exists()) {
+          remotes.add(RemoteHubbubTransformer(libPluginFile.uri));
+        }
+
         var toolDir = Directory.fromUri(rootDir.uri.resolve('tool'));
         var hubbubPluginUri = toolDir.uri.resolve('hubbub_plugin.dart');
         var hubbubPluginFile = File.fromUri(hubbubPluginUri);
@@ -170,7 +176,9 @@ class RemoteHubbubTransformer {
       }
     }
 
-    _isolate = await Isolate.spawnUri(dillFile.uri, [], _recv.sendPort);
+    var isolatePath = p.canonicalize(p.join(p.current, dillFile.path));
+
+    _isolate = await Isolate.spawnUri(p.toUri(isolatePath), [], _recv.sendPort);
     _channel = IsolateChannel.connectReceive(_recv);
     _client = json_rpc_2.Client.withoutJson(_channel);
     scheduleMicrotask(_client.listen);

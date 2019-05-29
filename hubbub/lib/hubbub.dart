@@ -1,3 +1,4 @@
+export 'package:analyzer/dart/ast/standard_ast_factory.dart';
 export 'src/parse.dart';
 export 'src/parser.dart';
 export 'src/rpc.dart';
