@@ -19,14 +19,14 @@ class HubbubParserAdapter extends ParserAdapter {
 
   factory HubbubParserAdapter(
       Source source, AnalysisErrorListener errorListener,
-      {bool allowNativeClause: false, FeatureSet featureSet}) {
-    var errorReporter = new ErrorReporter(errorListener, source);
-    return new HubbubParserAdapter._(errorReporter, source.uri,
+      {bool allowNativeClause = false, FeatureSet featureSet}) {
+    var errorReporter = ErrorReporter(errorListener, source);
+    return HubbubParserAdapter._(errorReporter, source.uri,
         allowNativeClause: allowNativeClause, featureSet: featureSet);
   }
 
   HubbubParserAdapter._(ErrorReporter errorReporter, Uri fileUri,
-      {bool allowNativeClause: false, FeatureSet featureSet})
+      {bool allowNativeClause = false, FeatureSet featureSet})
       : super(null, errorReporter, fileUri,
             allowNativeClause: allowNativeClause) {
     fastaParser._adapter = this;

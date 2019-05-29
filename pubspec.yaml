@@ -4,4 +4,6 @@ author: Tobe O <thosakwe@gmail.com>
 description: Syntax extensions for the Dart language and parser, i.e. DSX.
 homepage: https://github.com/regiostech/sdk/tree/master/pkg/hubbub
 dependencies:
-  analyzer: 
+  analyzer:
+dev_dependencies:
+  pedantic: ^1.0.0

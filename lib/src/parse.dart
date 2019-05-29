@@ -11,27 +11,28 @@ import 'parser.dart';
 
 CompilationUnit parseCompilationUnit(String contents,
     {String name,
-    bool suppressErrors: false,
-    bool parseFunctionBodies: true,
+    bool suppressErrors = false,
+    bool parseFunctionBodies = true,
     FeatureSet featureSet}) {
   featureSet ??= FeatureSet.fromEnableFlags([]);
-  Source source = new StringSource(contents, name);
+  Source source = StringSource(contents, name);
   return _parseSource(contents, source, featureSet,
       suppressErrors: suppressErrors, parseFunctionBodies: parseFunctionBodies);
 }
 
 CompilationUnit _parseSource(
     String contents, Source source, FeatureSet featureSet,
-    {bool suppressErrors: false, bool parseFunctionBodies: true}) {
-  var reader = new CharSequenceReader(contents);
-  var errorCollector = new _ErrorCollector();
-  var scanner = new Scanner(source, reader, errorCollector)
+    {bool suppressErrors = false, bool parseFunctionBodies = true}) {
+  var reader = CharSequenceReader(contents);
+  var errorCollector = _ErrorCollector();
+  var scanner = Scanner(source, reader, errorCollector)
     ..configureFeatures(featureSet);
   var token = scanner.tokenize();
-  var parser = new HubbubParserAdapter(source, errorCollector, featureSet: featureSet)
-    ..parseFunctionBodies = parseFunctionBodies;
+  var parser =
+      HubbubParserAdapter(source, errorCollector, featureSet: featureSet)
+        ..parseFunctionBodies = parseFunctionBodies;
   var unit = parser.parseCompilationUnit(token)
-    ..lineInfo = new LineInfo(scanner.lineStarts);
+    ..lineInfo = LineInfo(scanner.lineStarts);
 
   if (errorCollector.hasErrors && !suppressErrors) throw errorCollector.group;
 
@@ -46,10 +47,10 @@ class _ErrorCollector extends AnalysisErrorListener {
 
   /// The group of errors collected.
   AnalyzerErrorGroup get group =>
-      new AnalyzerErrorGroup.fromAnalysisErrors(_errors);
+      AnalyzerErrorGroup.fromAnalysisErrors(_errors);
 
   /// Whether any errors where collected.
-  bool get hasErrors => !_errors.isEmpty;
+  bool get hasErrors => _errors.isNotEmpty;
 
   @override
   void onError(AnalysisError error) => _errors.add(error);
