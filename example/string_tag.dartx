@@ -1,0 +1,7 @@
+main() {
+    return yaml '''
+    foo:
+        - bar
+        - baz
+    ''';
+}
