@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as json_rpc_2;
 import 'package:package_resolver/package_resolver.dart';
+import 'package:path/path.dart' as p;
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:stream_channel/isolate_channel.dart';
 import 'package:stream_channel/stream_channel.dart';
@@ -130,19 +132,46 @@ class TransformationEngine {
 
 /// Interfaces with a Hubbub plugin via JSON RPC 2.0.
 class RemoteHubbubTransformer {
-  final ReceivePort recv = ReceivePort();
+  /// The [Uri] of the file to run in a [Isolate].
   final Uri uri;
 
+  final ReceivePort _recv = ReceivePort();
   StreamChannel _channel;
   json_rpc_2.Client _client;
   Isolate _isolate;
 
   RemoteHubbubTransformer(this.uri);
 
+  static final _notWord = RegExp(r'[^\w\s.]+');
+
   /// Starts the plugin in another [Isolate].
   Future<void> start() async {
-    _isolate = await Isolate.spawnUri(uri, [], recv.sendPort);
-    _channel = IsolateChannel.connectReceive(recv);
+    // We create a .dill snapshot of the file, for faster
+    // startup.
+    var hubbubDir = p.join('.dart_tool', 'hubbub');
+    var dillName = p.setExtension(uri.path.replaceAll(_notWord, '_'), '.dill');
+    var dillFile = File(p.join(hubbubDir, 'snapshots', dillName));
+    var generate = !await dillFile.exists();
+
+    if (!generate) {
+      var dillStat = await dillFile.stat();
+      var fileStat = await File.fromUri(uri).stat();
+      generate = fileStat.modified.isAfter(dillStat.modified);
+    }
+
+    if (generate) {
+      var dillDir = Directory(p.join(hubbubDir, 'snapshots'));
+      await dillDir.create(recursive: true);
+      var dart = await Process.run(Platform.resolvedExecutable,
+          ['--snapshot=${dillFile.path}', File.fromUri(uri).path],
+          stderrEncoding: utf8);
+      if (dart.exitCode != 0) {
+        throw StateError('Failed to snapshot $uri: ${dart.stderr}');
+      }
+    }
+
+    _isolate = await Isolate.spawnUri(dillFile.uri, [], _recv.sendPort);
+    _channel = IsolateChannel.connectReceive(_recv);
     _client = json_rpc_2.Client.withoutJson(_channel);
     scheduleMicrotask(_client.listen);
   }
@@ -159,7 +188,7 @@ class RemoteHubbubTransformer {
   /// Closes the connection.
   Future<void> close() async {
     await _client.close();
-    recv.close();
+    _recv.close();
     _isolate.kill();
   }
 }
