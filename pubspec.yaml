@@ -1,0 +1,6 @@
+name: hubbub
+version: 0.0.0
+author: Tobe O <thosakwe@gmail.com>
+description: Fork of Dart's package:analyzer that allows for custom syntax extensions.
+homepage: https://github.com/regiostech/sdk/tree/master/pkg/hubbub
+
