@@ -7,7 +7,9 @@ dependencies:
   analyzer: ^0.36.0
   build: ^1.0.0
   build_config: ^0.4.0
+  json_rpc_2: ^2.0.0
   package_resolver: ^1.0.0
+  stream_channel: ^1.0.0
 dev_dependencies:
   build_runner: ^1.0.0
   pedantic: ^1.0.0
