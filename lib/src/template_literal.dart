@@ -7,8 +7,8 @@ import 'visitor.dart';
 
 /// A Hubbub-specific literal. Consists of a [SimpleIdentifier], followed by a [StringLiteral].
 class TemplateLiteral extends LiteralImpl {
-  final SimpleIdentifier simpleIdentifier;
-  final StringLiteral stringLiteral;
+  SimpleIdentifier simpleIdentifier;
+  StringLiteral stringLiteral;
 
   TemplateLiteral(this.simpleIdentifier, this.stringLiteral);
 

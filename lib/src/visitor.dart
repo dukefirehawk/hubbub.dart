@@ -23,3 +23,23 @@ class RecursiveHubbubAstVisitor<T> extends RecursiveAstVisitor<T>
     return null;
   }
 }
+
+/// Replaces one node with another.
+class HubbubNodeReplacer extends NodeReplacer
+    implements HubbubAstVisitor<bool> {
+  final AstNode oldNode, newNode;
+
+  HubbubNodeReplacer(this.oldNode, this.newNode) : super(oldNode, newNode);
+
+  @override
+  bool visitTemplateLiteral(TemplateLiteral node) {
+    if (identical(node.simpleIdentifier, oldNode)) {
+      node.simpleIdentifier = newNode as SimpleIdentifier;
+      return true;
+    } else if (identical(node.stringLiteral, oldNode)) {
+      node.stringLiteral = newNode as StringLiteral;
+      return true;
+    }
+    return visitNode(node);
+  }
+}
