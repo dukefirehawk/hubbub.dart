@@ -1,6 +1,6 @@
-import 'package:analyzer/analyzer.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/src/dart/ast/ast.dart';
+import 'package:analyzer/src/dart/ast/utilities.dart';
 import 'package:front_end/src/base/syntactic_entity.dart';
 import 'package:front_end/src/scanner/token.dart';
 import 'visitor.dart';

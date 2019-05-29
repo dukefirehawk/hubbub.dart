@@ -20,7 +20,13 @@ class TransformationEngine {
 
   /// A [List] of connections to Hubbub plugins.
   final remotes = <RemoteHubbubTransformer>[];
+
+  /// An optional root package to search for a tool/hubbub_plugin.dart in.
+  String rootPackage;
+
   bool _init = false;
+
+  TransformationEngine({this.rootPackage});
 
   /// Closes all current connections, and resets the engine.
   Future<void> close() async {
@@ -30,6 +36,15 @@ class TransformationEngine {
     }
 
     _init = false;
+  }
+
+  /// Invokes all remote transformers.
+  Future<CompilationUnit> transform(
+      String filename, CompilationUnit unit) async {
+    for (var r in remotes) {
+      unit = await r.transform(filename, unit);
+    }
+    return unit;
   }
 
   /// Opens connnections to all available plugins.
@@ -59,9 +74,10 @@ class TransformationEngine {
       Map<String, Uri> packages, PackageResolver resolver) async {
     for (var entry in packages.entries) {
       // If there is no scheme, this is the current package.
-      if (!entry.value.hasScheme) {
-        var pkgUri = Uri.parse('package:${entry.key}/tool/hubbub_plugin.dart');
-        var hubbubPluginUri = await resolver.resolveUri(pkgUri);
+      if (entry.key == rootPackage) {
+        var rootDir = Directory(await resolver.packagePath(entry.key));
+        var toolDir = Directory.fromUri(rootDir.uri.resolve('tool'));
+        var hubbubPluginUri = toolDir.uri.resolve('hubbub_plugin.dart');
         var hubbubPluginFile = File.fromUri(hubbubPluginUri);
         if (await hubbubPluginFile.exists()) {
           remotes.add(RemoteHubbubTransformer(hubbubPluginUri));
@@ -128,6 +144,7 @@ class RemoteHubbubTransformer {
     _isolate = await Isolate.spawnUri(uri, [], recv.sendPort);
     _channel = IsolateChannel.connectReceive(recv);
     _client = json_rpc_2.Client.withoutJson(_channel);
+    scheduleMicrotask(_client.listen);
   }
 
   /// Invokes the remote transformer.

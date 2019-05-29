@@ -1,0 +1,11 @@
+builders:
+  hubbub:
+    import: "package:hubbub/builder.dart"
+    auto_apply: all_packages
+    builder_factories:
+      - hubbubBuilder
+    build_extensions:
+      .dartx:
+        - .dart
+      .hubbub:
+        - .dart

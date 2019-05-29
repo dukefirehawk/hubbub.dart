@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'dart:isolate';
 import 'package:analyzer/dart/ast/ast.dart';
+import 'package:dart_style/dart_style.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as json_rpc_2;
 import 'package:stream_channel/isolate_channel.dart';
 import 'parse.dart';
@@ -37,8 +40,15 @@ Future<void> hubbub(SendPort sendPort,
 Future<void> hubbubRaw(SendPort sendPort,
     FutureOr<String> Function(RemoteHubbubSource) transformer) async {
   if (sendPort == null) {
-    // TODO: Potentially allow reading from an existing file/stdin
-    throw UnsupportedError('Hubbub transformers must be given a SendPort.');
+    stderr.writeln('Enter some Hubbub code. Press CTRL^D to end input.');
+    var contents = await stdin.transform(utf8.decoder).join();
+    var source = RemoteHubbubSource('stdin', contents);
+    var result = await transformer(source);
+    try {
+      print(DartFormatter().format(result));
+    } catch (_) {
+      print(result);
+    }
   } else {
     var channel = IsolateChannel.connectSend(sendPort);
     var server = json_rpc_2.Server.withoutJson(channel);

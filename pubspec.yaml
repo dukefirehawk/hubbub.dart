@@ -7,6 +7,7 @@ dependencies:
   analyzer: ^0.36.0
   build: ^1.0.0
   build_config: ^0.4.0
+  dart_style: ^1.0.0
   json_rpc_2: ^2.0.0
   package_resolver: ^1.0.0
   pubspec_parse: ^0.1.4

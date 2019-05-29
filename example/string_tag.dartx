@@ -3,5 +3,6 @@ main() {
     foo:
         - bar
         - baz
+        - quux
     ''';
 }

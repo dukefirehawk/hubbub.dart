@@ -1,4 +1,6 @@
-import 'package:analyzer/analyzer.dart';
+import 'package:analyzer/src/dart/ast/utilities.dart';
+import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/dart/ast/visitor.dart';
 import 'template_literal.dart';
 
 /// Traverses an entire Hubbub AST.
@@ -30,6 +32,25 @@ class HubbubNodeReplacer extends NodeReplacer
   final AstNode oldNode, newNode;
 
   HubbubNodeReplacer(this.oldNode, this.newNode) : super(oldNode, newNode);
+
+  /// Replace the [oldNode] with the [newNode] in the AST structure containing
+  /// the old node. Return `true` if the replacement was successful.
+  ///
+  /// Throws an [ArgumentError] if either node is `null`, if the old node does
+  /// not have a parent node, or if the AST structure has been corrupted.
+  static bool replace(AstNode oldNode, AstNode newNode) {
+    if (oldNode == null || newNode == null) {
+      throw ArgumentError("The old and new nodes must be non-null");
+    } else if (identical(oldNode, newNode)) {
+      return true;
+    }
+    AstNode parent = oldNode.parent;
+    if (parent == null) {
+      throw ArgumentError("The old node is not a child of another node");
+    }
+    var replacer = HubbubNodeReplacer(oldNode, newNode);
+    return parent.accept(replacer);
+  }
 
   @override
   bool visitTemplateLiteral(TemplateLiteral node) {
