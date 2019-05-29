@@ -2,7 +2,7 @@ name: hubbub
 version: 0.0.0
 author: Tobe O <thosakwe@gmail.com>
 description: Syntax extensions for the Dart language and parser, i.e. DSX.
-homepage: https://github.com/regiostech/sdk/tree/master/pkg/hubbub
+homepage: https://github.com/thosakwe/hubbub
 environment:
   sdk: ">=2.0.0 <3.0.0"
 dependencies:
