@@ -1,0 +1,5 @@
+name: hubbub_analyzer_plugin
+publish_to: none
+dependencies:
+  analyzer_plugin: ^0.0.1-alpha.8
+  hubbub: ^0.0.0
